@@ -1,4 +1,5 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 
 export interface ApartmentData {
   price: number;
@@ -15,16 +16,14 @@ export interface ApartmentData {
 }
 
 export async function scrapeBonavaApartments(): Promise<ApartmentData[]> {
+  const executablePath = await chromium.executablePath();
+
   const browser = await puppeteer.launch({
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: executablePath || process.env.CHROME_BIN,
     headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-accelerated-2d-canvas",
-      "--disable-gpu",
-      "--window-size=1920x1080",
-    ],
+    ignoreHTTPSErrors: true,
   });
 
   try {
