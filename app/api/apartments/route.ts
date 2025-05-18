@@ -36,16 +36,28 @@ export async function POST() {
     // Test database connection
     await prisma.$connect();
 
+    console.log("Starting to scrape apartments...");
     const apartments = await scrapeBonavaApartments();
+    console.log(`Scraped ${apartments.length} apartments`);
 
+    if (!apartments || apartments.length === 0) {
+      return NextResponse.json(
+        { error: "No apartments were scraped" },
+        { status: 400 }
+      );
+    }
+
+    console.log("Clearing existing apartments...");
     // Clear existing apartments
     await prisma.apartment.deleteMany();
 
+    console.log("Inserting new apartments...");
     // Insert new apartments
     const createdApartments = await prisma.apartment.createMany({
       data: apartments,
     });
 
+    console.log(`Successfully created ${createdApartments.count} apartments`);
     return NextResponse.json({
       message: "Apartments updated successfully",
       count: createdApartments.count,

@@ -87,12 +87,23 @@ function HomePage() {
 
       if (!response.ok) {
         console.error("Sync Error:", data);
+        alert(
+          `Failed to sync apartments: ${data.error}${
+            data.details ? `\nDetails: ${data.details}` : ""
+          }`
+        );
         return;
       }
 
+      console.log("Sync successful:", data);
       await fetchApartments();
     } catch (error) {
       console.error("Failed to sync apartments:", error);
+      alert(
+        `Failed to sync apartments: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     } finally {
       setLoading(false);
     }
