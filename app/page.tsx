@@ -41,6 +41,12 @@ function HomePage() {
       const response = await fetch("/api/apartments");
       const data = await response.json();
 
+      if (!response.ok) {
+        console.error("API Error:", data);
+        setApartments([]);
+        return;
+      }
+
       if (!Array.isArray(data)) {
         console.error("Received non-array data:", data);
         setApartments([]);
@@ -76,7 +82,14 @@ function HomePage() {
   const syncApartments = async () => {
     setLoading(true);
     try {
-      await fetch("/api/apartments", { method: "POST" });
+      const response = await fetch("/api/apartments", { method: "POST" });
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Sync Error:", data);
+        return;
+      }
+
       await fetchApartments();
     } catch (error) {
       console.error("Failed to sync apartments:", error);
