@@ -60,7 +60,12 @@ function HomePage() {
 
       const apartmentsWithArrayTags: Apartment[] = data.map((apt) => ({
         ...apt,
-        tag: Array.isArray(apt.tag) ? apt.tag : apt.tag ? [apt.tag] : [],
+        tag:
+          typeof apt.tag === "string"
+            ? JSON.parse(apt.tag)
+            : Array.isArray(apt.tag)
+            ? apt.tag
+            : [],
       }));
       setApartments(apartmentsWithArrayTags);
     } catch (error) {
@@ -403,16 +408,14 @@ function HomePage() {
                     </span>
                   )}
                   {apt.tag &&
-                    JSON.parse(apt.tag).map(
-                      (singleTag: string, index: number) => (
-                        <span
-                          key={index}
-                          className="tag px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs font-semibold"
-                        >
-                          {singleTag}
-                        </span>
-                      )
-                    )}
+                    apt.tag.map((singleTag: string, index: number) => (
+                      <span
+                        key={index}
+                        className="tag px-2 py-1 rounded bg-blue-100 text-blue-700 text-xs font-semibold"
+                      >
+                        {singleTag}
+                      </span>
+                    ))}
                 </div>
                 <div className="buttons-show">
                   <a
