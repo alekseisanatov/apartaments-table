@@ -19,23 +19,6 @@ interface Apartment {
   projectLink: string;
 }
 
-interface FetchedApartmentData {
-  id: number;
-  price: number;
-  sqMeters: number;
-  plan: string;
-  projectName: string;
-  roomsCount: number;
-  imageUrl: string;
-  floor: number;
-  link: string;
-  status: string;
-  tag: string | string[] | null | undefined;
-  projectLink: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 function HomePage() {
   const [apartments, setApartments] = useState<Apartment[]>([]);
   const [loading, setLoading] = useState(false);
@@ -56,20 +39,37 @@ function HomePage() {
   const fetchApartments = async () => {
     try {
       const response = await fetch("/api/apartments");
-      const data: FetchedApartmentData[] = await response.json();
+      const data = await response.json();
 
-      const apartmentsWithArrayTags: Apartment[] = data.map((apt) => ({
-        ...apt,
-        tag:
-          typeof apt.tag === "string"
-            ? JSON.parse(apt.tag)
-            : Array.isArray(apt.tag)
-            ? apt.tag
-            : [],
-      }));
+      if (!Array.isArray(data)) {
+        console.error("Received non-array data:", data);
+        setApartments([]);
+        return;
+      }
+
+      const apartmentsWithArrayTags: Apartment[] = data.map((apt) => {
+        let tagArray: string[] = [];
+        try {
+          if (typeof apt.tag === "string") {
+            tagArray = JSON.parse(apt.tag);
+          } else if (Array.isArray(apt.tag)) {
+            tagArray = apt.tag;
+          }
+        } catch (e) {
+          console.error("Error parsing tag:", e);
+          tagArray = [];
+        }
+
+        return {
+          ...apt,
+          tag: tagArray,
+        };
+      });
+
       setApartments(apartmentsWithArrayTags);
     } catch (error) {
       console.error("Failed to fetch apartments:", error);
+      setApartments([]);
     }
   };
 
