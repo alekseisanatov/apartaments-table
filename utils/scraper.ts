@@ -1,4 +1,4 @@
-import chromium from "chrome-aws-lambda";
+import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 
 export interface ApartmentData {
@@ -16,14 +16,13 @@ export interface ApartmentData {
 }
 
 export async function scrapeBonavaApartments(): Promise<ApartmentData[]> {
-  const executablePath = await chromium.executablePath;
+  const executablePath = await chromium.executablePath();
 
   const browser = await puppeteer.launch({
     args: chromium.args,
     defaultViewport: chromium.defaultViewport,
     executablePath: executablePath || process.env.CHROME_BIN,
-    headless: chromium.headless,
-    ignoreHTTPSErrors: true,
+    headless: true,
   });
 
   try {
